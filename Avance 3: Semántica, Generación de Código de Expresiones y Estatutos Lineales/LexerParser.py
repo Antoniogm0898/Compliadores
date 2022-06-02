@@ -1,53 +1,12 @@
-from symtable import SymbolTable
+from turtle import right
 import ply.lex as lex
 import ply.yacc as yacc
 from Semantica import newLineTV, newVar, apply_cubo_semantico
 import pandas as pd
+import sys
 
 fileTxt = r"""
     programa proyecto;
-     
-    Clase Persona{ 
-        atributos
-            int : edad;
-            float : altura;
-            char : nombre;
-            bool : alumno;
-
-        metodos
-            int funcion retornaEdad(int edad){ 
-                atributos
-                int : wow;
-                int : non[20];
-                float : nwn[20][20];
-
-                return (edad + 2)
-            }
-
-            float funcion retornaAltura(float altura){ 
-                atributos
-                int : ni;
-               
-
-                return (ni)
-            }
-
-            void funcion escribirLeer(char nombre){
-                a = 3 + 2 * 5 / 20 - 10;
-
-            }
-    };
-
-    Clase Estudiante <hereda Persona> { 
-        atributos
-            int : grado;
-            float : peso;
-
-        metodos
-            void funcion escribirLeer2(char nombre){
-                lee(nombre)
-            }
-    };
 
     atributos
         int : atributoInt, atributoInt2;
@@ -108,7 +67,6 @@ reserved = {
     'to' : 'TO',
     'programa' : 'PROGRAMA',
     'principal' : 'PRINCIPAL',
-    'Clase' : 'CLASE',
     'return' : 'RETURN',
     'lee' : 'LEE',
     'escribir' : 'ESCRIBIR',
@@ -200,48 +158,29 @@ pilaO = []
 cuad = []
 cont = 0
 ptype = []
+estatutosFlag = False
 
 def p_programa(p):
     '''
-    programa : PROGRAMA ID addDir SEMI programa2
+    programa : PROGRAMA ID SEMI programa2
     '''
-    # Symbol Table 6. Eliminar DirFunc y VarTable
-    #del(directorio_fun, current_varT)
 
 def p_programa2(p):
     '''
-    programa2 : clases programa2
+    programa2 : atributos programa2
               | programa3
     '''
 
 def p_programa3(p):
     '''
-    programa3 : atributos programa3
+    programa3 : metodos programa3
               | programa4
     '''
 
 def p_programa4(p):
     '''
-    programa4 : metodos programa4
-              | programa5
+    programa4 : principal
     '''
-
-def p_programa5(p):
-    '''
-    programa5 : principal
-    '''
-
-# Clases
-def p_clases(p):
-    '''
-    clases : CLASE ID addDir clases2
-    '''   
-    
-def p_clases2(p):
-    '''
-    clases2 : LBRACES atributos metodos RBRACES addDir SEMI  
-           | LT HEREDA ID GT  LBRACES atributos metodos RBRACES addDir SEMI 
-    '''   
 
 # Atributos
 def p_atributos(p):
@@ -260,21 +199,16 @@ def p_addDir(p):
             varTable = []
             directorio_fun.loc[current_class[-1], "Vars"] = varTable 
 
-        #print("\t\t\t", "Comenzamos con los atributos")
     # Symbol Table 7. Prepara la tabla para agregar funcion nueva
     # Symbol table 9. Buscamos por el id en la tabla de valores, si ya existe se arroja error
     elif p[-2] == "funcion": 
         current_func.append(p[-1])
-        #print("\t\t", "Comenzamos con las funciones")
-        #print("\t\t", "FUNCION: ", current_func[-1], current_type)
         directorio_fun = newVar(directorio_fun, current_class[-1], current_func[-1], current_type)
         if len(varTable) > 0:
             directorio_fun.loc[current_class[-1], "Vars"] = directorio_fun.loc[current_class[-1], "Vars"]  + varTable
             varTable = []
     elif p[-2] == "Clase":
         current_class.append(p[-1])
-        #print("\t", "Comenzamos con las clases")
-        #print("\t", "CLASE: ", p[-2], current_class[-1])
         directorio_fun = newLineTV(current_class[-1], p[-2], directorio_fun)
     elif p[-2] == "programa":
         # Symbol Table 1. Crear directorio de funciones
@@ -283,15 +217,11 @@ def p_addDir(p):
         # Symbol Table 2. Se agrega el programa al directorio'
         directorio_fun = newLineTV(p[-1], p[-2], pd.DataFrame(columns = ["ID", "Type", "Vars"]))
         directorio_fun.loc[current_class[-1], "Vars"] = []
-        print("Comenzamos con el programa")
-        #print("PROGRAMA: ", p[-1], p[-2])
     elif p[-1] == "}" :
         if len(current_func) == 0:
-            #print("\t", "Cerrando ciclo: ", current_class[-1])
             directorio_fun.loc[current_class[-1], "Vars"] = directorio_fun.loc[current_class[-1], "Vars"] + varTable
             current_class.pop()
         else:
-            #print("\t\t", "Cerrando ciclo: ", current_func[-1])
             for var in directorio_fun.loc[current_class[-1], "Vars"]:
                 if var["ID"] == current_func[-1]:
                    var["Vars"] = varTable
@@ -404,7 +334,6 @@ def p_addValueVarT(p):
         if item["ID"] == current_name:
             print("ERROR: Duplicaicon de variables")
     varTable = varTable + [{"ID" :current_name, "Type" : current_type, "Vars" : None}]
-    #print("\t\t\t", "VAR: ", current_type ,current_name)
 
 # Tipo
 # Symbol Table 4. Se agrega el programa al directorio
@@ -458,12 +387,14 @@ def p_checarMM(p):
     '''
     checarMM :
     '''
-    print("checar mas y menod",pOper,pilaO)
     if  pOper[-1] == '+' or pOper[-1] == '-':
          leftO = pilaO.pop()
+         leftT = ptype.pop()
          rightO = pilaO.pop()
+         rightT = ptype.pop()
          oper = pOper.pop()
          global cont
+         print(oper, [rightO, rightT], [leftO, leftT], cont)
          aux = cuadruplos(oper,rightO,leftO,cont)
     
          cuad.append(aux)
@@ -488,12 +419,14 @@ def p_chacarMD(p):
     '''
     chacarMD :
     '''
-    print("checar por y div",pOper)
     if pOper[-1] == '*' or pOper[-1] == '/':
          leftO = pilaO.pop()
+         leftT = ptype.pop()
          rightO = pilaO.pop()
+         rightT = ptype.pop()
          oper = pOper.pop()
          global cont
+         print(oper, [rightO, rightT], [leftO, leftT], cont)
          aux = cuadruplos(oper,rightO,leftO,cont)
          cuad.append(aux)
          pilaO.append(cont)
@@ -513,21 +446,19 @@ def p_addO(p):
     addO : 
     '''
     pOper.append(p[-1])
-    print(pOper)
 
 def p_f(p):
     '''
     f : LPAREN exp RPAREN
-      | CTE_I
-      | CTE_F
-      | CTE_S
+      | CTE_I 
+      | CTE_F 
+      | CTE_S 
       | llamada
-      | ID
+      | ID 
     '''
     if len(p) == 2:
         pilaO.append(p[1])
-        ptype.append(current_type)
-        #print(p[1],current_type)
+
 
 # Estatutos
 def p_estatutos(p):
