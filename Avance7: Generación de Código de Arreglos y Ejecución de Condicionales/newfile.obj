@@ -1,0 +1,123 @@
+CODIGO INTERMEDIO
+GOTOMAIN,,,48
+>=,4001,4000,15000
+<=,4002,4000,15001
+&&,15000,15001,15002
+GotoF,15002,,11
+print,,,7000
++,0,1,12000
+=,12000,,4004
+%,2,3,12001
+=,12001,,4004
+=,2000,,6000
+<,4003,4000,15003
+==,4001,4000,15004
+||,15003,15004,15005
+GotoF,15005,,18
+print,,,5000
+print,,,6000
+Goto,,,19
+print,,,5000
+return,,,5000
+ENDFUNC,,,
+PARAMETER,5000,par0,
+PARAMETER,7001,par1,
+PARAMETER,6000,par2,
+PARAMETER,4001,par3,
+GOSUB,ejemploCondicional,,0
+=,ejemploCondicional,,12002
+=,12002,,4000
+PARAMETER,5000,par0,
+PARAMETER,7001,par1,
+PARAMETER,6000,par2,
+PARAMETER,4001,par3,
+GOSUB,ejemploCondicional,,0
+=,ejemploCondicional,,12003
+=,12003,,7001
+==,7000,3000,15006
+GotoF,15006,,43
+lee,1000,,13000
+lee,4,,12004
+lee,5,,12005
++,1001,1002,13001
+=,13001,,5000
+Goto,,,35
++,6,7,12006
+=,12006,,5000
+==,7000,3001,15007
+GotoV,15007,,43
+ENDFUNC,,,
+PARAMETER,11000,par0,
+PARAMETER,8000,par1,
+GOSUB,ejemploWhile,,20
++,8,9,12007
+-,12007,10,12008
+=,12008,,8000
+/,12,1003,13002
+*,11,13002,13003
+%,13003,13,12009
+=,12009,,9000
+=,2001,,10000
+=,3002,,11000
+=,14,,8004
+=,15,,8005
+<,8004,8005,12010
+GotoF,12010,,70
++,16,17,12011
+=,12011,,8002
++,8004,1,12012
+=,12012,,8004
+=,12012,,a
+Goto,62,,
+END,,,
+DIRECTORIO DE FUNCIONES
+global
+8000
+8001
+8002
+9000
+9001
+10000
+10001
+11000
+11001
+8003
+9002
+8004
+8005
+funcion ejemploCondicional
+#Param 4
+#VL 9
+#VT 8
+funcion ejemploWhile
+#Param 2
+#VL 6
+#VT 9
+TABLA DE CONSTANTES
+0,int
+1,int
+2,int
+3,int
+2000,char
+3000,bool
+1000,float
+4,int
+5,int
+1001,float
+1002,float
+6,int
+7,int
+3001,bool
+8,int
+9,int
+10,int
+11,int
+12,int
+1003,float
+13,int
+2001,char
+3002,bool
+14,int
+15,int
+16,int
+17,int
